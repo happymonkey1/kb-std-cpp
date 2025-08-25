@@ -40,17 +40,22 @@ option(KB_STD_BUILD_TESTS "kb-std: build tests" ${KB_STD_STANDALONE})
 add_library(kb-std
         # include/kb
         include/kb/kb_core.h
+        include/kb/kb_std.hpp
 
         # include/kb/core
         include/kb/core/logger.hpp
         include/kb/core/owning_buffer.hpp
         include/kb/core/types.hpp
 
+        # include/kb/mem
+        include/kb/mem/arena_allocator.hpp
+
         # src/kb
         src/kb/kb_core.cpp
 
         # src/kb/core
         src/kb/core/logger.cpp
+        include/kb/kb_std.hpp
 )
 
 # Include dirs
