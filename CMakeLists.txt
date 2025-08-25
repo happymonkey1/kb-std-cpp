@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(kb-std C CXX)
+project(kb-std VERSION "0.1.0" LANGUAGES C CXX)
 include(CheckIncludeFileCXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -21,8 +21,8 @@ else()
 endif()
 
 set(KB_STD_PUBLIC_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/kb/KB_STD.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/kb/KB_STD_cpp.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/kb/kb_core.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/kb/kb_std.hpp
 )
 
 if (MINGW)
@@ -59,7 +59,11 @@ add_library(kb-std
 )
 
 # Include dirs
-target_include_directories(kb-std PUBLIC include)
+target_include_directories(kb-std
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
 target_include_directories(kb-std PRIVATE src)
 target_include_directories(kb-std PUBLIC ${LIBCORO_INCLUDE_DIRS})
 
@@ -90,5 +94,37 @@ if (KB_STD_BUILD_TESTS)
     include(CTest)
     add_subdirectory(tests)
 endif()
+
+# CMake install
+if (KB_STD_INSTALL)
+    set(KB_STD_TARGETS_CONFIG_FILE "kb-stdConfigTargets.cmake")
+    set(KB_STD_CONFIG_IN "${CMAKE_CURRENT_LIST_DIR}/cmake/kb-std-config.cmake.in")
+    set(KB_STD_CONFIG_OUT "${CMAKE_CURRENT_BINARY_DIR}/kb-std-config.cmake")
+    set(KB_STD_EXPORT_DEST_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/kb-std")
+    set(KB_STD_VERSION_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/kb-stdConfigVersion.cmake")
+
+    install(TARGETS kb-std
+            EXPORT kb-std
+            PUBLIC_HEADER DESTINATION include
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+
+    export(TARGETS kb-std NAMESPACE kb-std::
+            FILE "${CMAKE_CURRENT_BINARY_DIR}/${KB_STD_TARGETS_CONFIG_FILE}")
+    install(EXPORT kb-std
+            DESTINATION ${KB_STD_EXPORT_DEST_DIR}
+            NAMESPACE kb-std::
+            FILE ${KB_STD_TARGETS_CONFIG_FILE})
+
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file("${KB_STD_CONFIG_IN}" "${KB_STD_CONFIG_OUT}"
+            INSTALL_DESTINATION ${KB_STD_EXPORT_DEST_DIR})
+
+    write_basic_package_version_file("${KB_STD_VERSION_CONFIG_FILE}" COMPATIBILITY SameMajorVersion)
+    install(FILES "${KB_STD_CONFIG_OUT}" "${KB_STD_VERSION_CONFIG_FILE}"
+            DESTINATION "${KB_STD_EXPORT_DEST_DIR}")
+endif ()
 
 # TODO: copy_steam_to_ip_address vcpkg.json from root into vcpkg-overlays/kbnetworking/
