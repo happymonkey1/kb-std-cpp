@@ -3,6 +3,7 @@
 //
 
 #include "kb/kb_core.h"
+#include "kb/core/logger.hpp"
 
 auto main([[maybe_unused]] int argc, [[maybe_unused]] char ** argv) -> int {
 
