@@ -25,6 +25,10 @@
 #  define KB_UNUSED(x) (void)(x)
 #endif
 
+#ifndef KB_OWNING_BUFFER_INIT_SIZE
+#  define KB_OWNING_BUFFER_INIT_SIZE 8192
+#endif
+
 #ifdef __cplusplus
 
 # include <fmt/format.h>

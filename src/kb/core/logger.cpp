@@ -7,10 +7,10 @@ namespace kb::core {
 
 static std::shared_ptr<spdlog::logger> s_core_logger = nullptr;
 
-auto Logger::init() noexcept -> void {
+auto Logger::init(std::string_view p_app_name /* = "kb" */) noexcept -> void {
   std::vector<spdlog::sink_ptr> sinks;
   sinks.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
-  sinks.emplace_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>("kb-networking-cpp.log", 1024*1024*10, 3));
+  sinks.emplace_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(fmt::format("{}.log", p_app_name), 1024*1024*10, 3));
 
   const auto default_log_level = spdlog::level::trace;
 
@@ -19,7 +19,7 @@ auto Logger::init() noexcept -> void {
   sinks[1]->set_pattern("[%T] [Thread%5t] [%l] %n: %v");
   sinks[1]->set_level(spdlog::level::trace);
 
-  s_core_logger = std::make_shared<spdlog::logger>("[kb-networking-cpp]", sinks.begin(), sinks.end());
+  s_core_logger = std::make_shared<spdlog::logger>(fmt::format("[{}]", p_app_name), sinks.begin(), sinks.end());
   s_core_logger->set_level(default_log_level);
   spdlog::register_logger(s_core_logger);
   s_core_logger->flush_on(default_log_level);

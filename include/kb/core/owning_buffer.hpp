@@ -5,6 +5,7 @@
 #ifndef KB_STD_CORE_OWNING_BUFFER_H
 #define KB_STD_CORE_OWNING_BUFFER_H
 
+#include "kb/kb_core.h"
 #include "kb/core/types.hpp"
 
 #include <cstring>
