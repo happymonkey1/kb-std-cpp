@@ -20,11 +20,6 @@ else()
     set(KB_STD_STANDALONE OFF)
 endif()
 
-set(KB_STD_PUBLIC_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/kb/kb_core.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/kb/kb_std.hpp
-)
-
 if (MINGW)
     set(BUILD_SHARED_LIBS_DEFAULT OFF)
 else()
@@ -85,10 +80,6 @@ target_compile_definitions(kb-std PRIVATE
     $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>:KB_RELEASE>
 )
 
-set_target_properties(kb-std
-        PROPERTIES
-        PUBLIC_HEADER "${KB_STD_PUBLIC_HEADERS}")
-
 if (KB_STD_BUILD_TESTS)
     enable_testing()
     include(CTest)
@@ -105,7 +96,6 @@ if (KB_STD_INSTALL)
 
     install(TARGETS kb-std
             EXPORT kb-std
-            PUBLIC_HEADER DESTINATION include
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -117,6 +107,10 @@ if (KB_STD_INSTALL)
             DESTINATION ${KB_STD_EXPORT_DEST_DIR}
             NAMESPACE kb-std::
             FILE ${KB_STD_TARGETS_CONFIG_FILE})
+    install(DIRECTORY include/
+            DESTINATION include
+            FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+    )
 
     include(CMakePackageConfigHelpers)
     configure_package_config_file("${KB_STD_CONFIG_IN}" "${KB_STD_CONFIG_OUT}"
