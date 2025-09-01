@@ -12,5 +12,17 @@
 #include "kb/core/owning_buffer.hpp"
 
 #include "kb/mem/arena_allocator.hpp"
+#include "kb/mem/intrusive_shared_ref.hpp"
+
+namespace kb {
+
+// Default reference handling alias
+template <typename T>
+using Ref = ::kb::mem::IntrusiveSharedRef<T>;
+
+template <typename T>
+using RefCounted = ::kb::mem::RefCounted<T>;
+
+} // end namespace kb
 
 #endif  //KB_NETWORKING_KB_STD_HPP

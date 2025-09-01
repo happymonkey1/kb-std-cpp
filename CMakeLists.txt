@@ -44,6 +44,7 @@ add_library(kb-std
 
         # include/kb/mem
         include/kb/mem/arena_allocator.hpp
+        include/kb/mem/intrusive_shared_ref.hpp
 
         # src/kb
         src/kb/kb_core.cpp
