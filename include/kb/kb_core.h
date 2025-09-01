@@ -7,6 +7,23 @@
 
 #include <stdarg.h>
 
+#ifdef _WIN32
+#  ifdef _WIN64
+#    define KB_STD_PLATFORM_WINDOWS
+#  else
+#    define KB_STD_PLATFORM_WINDOWS_X86
+#  endif
+#elif TARGET_OS_MAC
+//defined(__APPLE__) || defined(__MACH__)
+#  define KB_STD_PLATFORM_MACOS
+#elif defined(__ANDROID__)
+#  define KB_STD_PLATFORM_ANDROID
+#elif defined(__linux__)
+#  define KB_STD_PLATFORM_LINUX
+#else
+#  define KB_STD_PLATFORM_UNKNOWN
+#endif
+
 #if defined(KB_STD_SHARED) && !defined(KB_API)
 #  if defined(_WIN32) && !defined(__MINGW32__)
 #    ifdef KB_API
