@@ -87,7 +87,7 @@ inline auto kb_format_str_internal(const char* p_str) -> std::string {
 #endif
 
 #ifndef KB_ASSERT
-#  define KB_ASSERT(x, ...) do { if (!(x)) KB_ABORT("Assertion failed (%s): %s", #x, ::kb::details::kb_format_str_internal(__VA_ARGS__)); } while (false)
+#  define KB_ASSERT(x, ...) do { if (!(x)) KB_ABORT("Assertion failed ({}): {}", #x, ::kb::details::kb_format_str_internal(__VA_ARGS__)); } while (false)
 #endif
 
 #  ifndef KB_LOG_TRACE
