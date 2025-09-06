@@ -46,6 +46,20 @@
 #  define KB_OWNING_BUFFER_INIT_SIZE 8192
 #endif
 
+#if defined(_MSC_VER)  // MSCV
+#  define KB_FORCE_INLINE __forceinline
+#elif defined(__GNUC__) // GCC
+#  define KB_FORCE_INLINE inline __attribute__((always_inline))
+#elif defined(__clang__)
+#  define KB_FORCE_INLINE [[clang::always_inline]] inline
+#endif
+
+#if defined(__cplusplus)
+#  define KB_NOEXCEPT noexcept
+#else
+#  define KB_NOEXCEPT
+#endif
+
 #define KB_STD
 
 #ifdef __cplusplus
