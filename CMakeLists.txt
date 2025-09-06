@@ -42,6 +42,9 @@ add_library(kb-std
         include/kb/core/owning_buffer.hpp
         include/kb/core/types.hpp
 
+        # include/kb/math
+        include/kb/math/math.h
+
         # include/kb/mem
         include/kb/mem/arena_allocator.hpp
         include/kb/mem/intrusive_shared_ref.hpp
@@ -52,6 +55,7 @@ add_library(kb-std
         # src/kb/core
         src/kb/core/logger.cpp
         include/kb/kb_std.hpp
+        tests/test_math.cpp
 )
 
 # Include dirs
@@ -80,6 +84,15 @@ target_compile_definitions(kb-std PRIVATE
     $<$<CONFIG:Debug>:KB_DEBUG>
     $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>:KB_RELEASE>
 )
+
+# Enable SSE4.1
+add_library(sse4_1 INTERFACE IMPORTED)
+if(MSVC)
+    target_compile_options(sse4_1 INTERFACE /arch:SSE4.1)
+else()
+    target_compile_options(sse4_1 INTERFACE -msse4.1)
+endif()
+target_link_libraries(kb-std PUBLIC sse4_1)
 
 if (KB_STD_BUILD_TESTS)
     enable_testing()

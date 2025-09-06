@@ -46,6 +46,8 @@
 #  define KB_OWNING_BUFFER_INIT_SIZE 8192
 #endif
 
+#define KB_STD
+
 #ifdef __cplusplus
 
 # include <fmt/format.h>

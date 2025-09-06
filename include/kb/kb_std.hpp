@@ -11,6 +11,8 @@
 #include "kb/core/logger.hpp"
 #include "kb/core/owning_buffer.hpp"
 
+#include "kb/math/math.h"
+
 #include "kb/mem/arena_allocator.hpp"
 #include "kb/mem/intrusive_shared_ref.hpp"
 
