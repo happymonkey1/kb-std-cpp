@@ -221,6 +221,22 @@ auto test_vec4_indexing() -> void {
   KB_ASSERT_CLOSE(v0[3], 8.0, TEST_EPSILON, "v[3] should be 8.0, found {}", float{ v0[3] });
 }
 
+void test_mat3_vec3_multiplication() {
+  KB_LOG_INFO("  Running test_mat3_vec3_multiplication...");
+  mat3 rotation;
+  rotation.rows[0] = vec3{0.f, -1.f, 0.f};
+  rotation.rows[1] = vec3{1.f, 0.f, 0.f};
+  rotation.rows[2] = vec3{0.f, 0.f, 1.f};
+
+  vec3 direction{10.f, 0.f, 0.f};
+
+  vec3 result = rotation * direction;
+
+  kb::math::vec3 expected{0.f, 10.f, 0.f};
+
+  KB_ASSERT(result == expected, "mat3 * vec3 multiplication failed. Expected: {}, found: {}", expected, result);
+}
+
 void test_mat4_multiplication() {
   KB_LOG_INFO("  Running test_mat4_multiplication...");
   mat4 identity;
@@ -276,6 +292,23 @@ void test_mat4_multiplication() {
       vec4{ res_mat.rows[i] }
     );
   }
+}
+
+void test_mat4_vec4_multiplication() {
+  KB_LOG_INFO("  Running test_mat4_vec4_multiplication...");
+  mat4 transform{};
+  transform.rows[0] = vec4{1.f, 0.f, 0.f, 10.f}.vec;
+  transform.rows[1] = vec4{0.f, 2.f, 0.f, 0.f}.vec;
+  transform.rows[2] = vec4{0.f, 0.f, 1.f, -5.f}.vec;
+  transform.rows[3] = vec4{0.f, 0.f, 0.f, 1.f}.vec;
+
+  vec4 point{3.f, 5.f, 8.f, 1.f};
+
+  vec4 result = transform * point;
+
+  kb::math::vec4 expected{13.f, 10.f, 3.f, 1.f};
+
+  KB_ASSERT(result == expected, "mat4 * vec4 multiplication failed. Expected: {}, found: {}", expected, result);
 }
 
 void test_ortho_common() {
@@ -373,8 +406,12 @@ auto main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) -> int {
   test_vec3_methods();
   test_vec3_cross_product();
 
+  KB_LOG_INFO("\n[ Running mat3 Tests ]");
+  test_mat3_vec3_multiplication();
+
   KB_LOG_INFO("\n[ Running mat4 Tests ]");
   test_mat4_multiplication();
+  test_mat4_vec4_multiplication();
   test_ortho_common();
   test_perspective_common();
 

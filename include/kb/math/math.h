@@ -429,6 +429,30 @@ KB_FORCE_INLINE void kb_math_matmul_mat4(const f32x4 * p_mat_a, const f32x4 * p_
   }
 }
 
+KB_FORCE_INLINE f32x4 kb_math_matmul_mat3_vec3(const f32x4 * p_mat, const f32x4 p_vec) KB_NOEXCEPT {
+  // Dot matrix rows with vector
+  f32x4 d0 = _mm_dp_ps(p_mat[0], p_vec, 0x71);
+  f32x4 d1 = _mm_dp_ps(p_mat[1], p_vec, 0x71);
+  f32x4 d2 = _mm_dp_ps(p_mat[2], p_vec, 0x71);
+
+  f32x4 r0 = _mm_unpacklo_ps(d0, d1);
+  f32x4 r1 = _mm_movelh_ps  (r0, d2);
+  return r1;
+}
+
+KB_FORCE_INLINE f32x4 kb_math_matmul_mat4_vec4(const f32x4 * p_mat, const f32x4 p_vec) KB_NOEXCEPT {
+  // Dot matrix rows with vector
+  f32x4 d0 = _mm_dp_ps(p_mat[0], p_vec, 0xF1);
+  f32x4 d1 = _mm_dp_ps(p_mat[1], p_vec, 0xF1);
+  f32x4 d2 = _mm_dp_ps(p_mat[2], p_vec, 0xF1);
+  f32x4 d3 = _mm_dp_ps(p_mat[3], p_vec, 0xF1);
+
+  const f32x4 res_xy = _mm_unpacklo_ps(d0, d1);
+  const f32x4 res_zw = _mm_unpacklo_ps(d2, d3);
+
+  return _mm_movelh_ps(res_xy, res_zw);
+}
+
 /**
  * @brief Element wise equality for two 3x3 matrices
  */
@@ -837,6 +861,8 @@ struct mat3 {
   // Padded for SIMD optimization
   vec3 rows[3];
 
+  mat3() noexcept = default;
+
   explicit mat3(f32 p_scalar) noexcept {
     rows[0] = details::kb_math_load_vec3_f32_scalar(p_scalar);
     rows[1] = details::kb_math_load_vec3_f32_scalar(p_scalar);
@@ -868,6 +894,13 @@ struct mat3 {
     f32x4_aligned_array_t<f32x4, 3> out;
     details::kb_math_matmul_mat3(as_simd(), p_other.as_simd(), out.data());
     return mat3{ out };
+  }
+
+  /**
+   * @brief Multiplies a 3x3 matrix with a 3 component vector
+   */
+  KB_FORCE_INLINE auto operator*(const vec3 & p_vec) noexcept -> vec3 {
+    return vec3{ details::kb_math_matmul_mat3_vec3(as_simd(), p_vec.vec) };
   }
 
   /**
@@ -931,6 +964,13 @@ struct mat4 {
     f32x4_aligned_array_t<f32x4, 4> out;
     details::kb_math_matmul_mat4(as_simd(), p_other.as_simd(), out.data());
     return mat4{ out };
+  }
+
+  /**
+   * @brief Multiplies a 4x4 matrix with a 4 component vector
+   */
+  KB_FORCE_INLINE auto operator*(const vec4 & p_vec) noexcept -> vec4 {
+    return vec4{ details::kb_math_matmul_mat4_vec4(as_simd(), p_vec.vec) };
   }
 
   /**
