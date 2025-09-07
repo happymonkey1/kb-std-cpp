@@ -10,7 +10,7 @@
  * <ul>
  *   <li> Provides simple graphics API oriented math structs, functions, and SIMD optimized computations.
  *   <li> Can be included as either a single header, or with the Kablunk Standard Library.
- *   <li> Provides a low level C API, and a higher level C++ wrapper
+ *   <li> Provides a low level C API, a (WIP) high level C API, and a high level C++ wrapper
  * </ul>
  */
 
@@ -23,9 +23,28 @@
 #  include <cstdint>
 #  include <array>
 #  include <cmath>
-#else
+
+#ifndef KB_CPP17
+#  if __cplusplus >= 201103L
+#    define KB_CPP11
+#  else
+#    error "C++11 or higher is required"
+#  endif
+
+#  if __cplusplus >= 201703L
+#    define KB_CPP17
+#  endif
+#endif
+
+#else //!__cplusplus
 #  include <stdint.h>
 #  include <math.h>
+#endif
+
+#ifndef KB_STD_C23
+#  if __STDC_VERSION__ >= 202311L
+#    define KB_STD_C23
+#  endif
 #endif
 
 #ifndef KB_FORCE_INLINE
@@ -50,10 +69,22 @@
 #  ifdef __cplusplus
 #    define KB_NODISCARD [[nodiscard]]
 #  else
-#    if __STDC_VERSION__ >= 202311L
+#    ifdef KB_STD_C23
 #      define KB_NODISCARD [[nodiscard]]
 #    else
 #      define KB_NODISCARD
+#    endif
+#  endif
+#endif
+
+#ifndef KB_CONSTEXPR
+#  ifdef __cplusplus
+#    define KB_CONSTEXPR constexpr
+#  else
+#    ifdef KB_STD_C23
+#      define KB_CONSTEXPR constexpr
+#    else
+#      define KB_CONSTEXPR
 #    endif
 #  endif
 #endif
@@ -214,21 +245,21 @@ KB_API KB_NODISCARD KB_FORCE_INLINE f32x4 kb_math_load_vec3_f32(f32 p_x, f32 p_y
 /**
  * @brief Load a scalar value into a 2 component vector
  */
-KB_API KB_NODISCARD KB_FORCE_INLINE f32x4 kb_math_load_vec2_f32_scalar(f32 p_v) KB_NOEXCEPT {
+KB_API KB_NODISCARD KB_FORCE_INLINE f32x4 kb_math_load_vec2_f32_scalar_impl(f32 p_v) KB_NOEXCEPT {
   return _mm_set_ps(0.0, 0.0, p_v, p_v);
 }
 
 /**
  * @brief Load a scalar value into a 3 component vector
  */
-KB_API KB_NODISCARD KB_FORCE_INLINE f32x4 kb_math_load_vec3_f32_scalar(f32 p_v) KB_NOEXCEPT {
+KB_API KB_NODISCARD KB_FORCE_INLINE f32x4 kb_math_load_vec3_f32_scalar_impl(f32 p_v) KB_NOEXCEPT {
   return _mm_set_ps(0.0, p_v, p_v, p_v);
 }
 
 /**
  * @brief Load a scalar value into a 4 component vector
  */
-KB_API KB_NODISCARD KB_FORCE_INLINE f32x4 kb_math_load_vec4_f32_scalar(f32 p_v) KB_NOEXCEPT {
+KB_API KB_NODISCARD KB_FORCE_INLINE f32x4 kb_math_load_vec4_f32_scalar_impl(f32 p_v) KB_NOEXCEPT {
   return _mm_set_ps1(p_v);
 }
 
@@ -649,7 +680,7 @@ KB_API KB_NODISCARD KB_FORCE_INLINE kb_vec2_t kb_math_init_vec2_t(f32x4 p_v) KB_
  */
 KB_API KB_NODISCARD KB_FORCE_INLINE kb_vec2_t kb_math_init_vec2_f32_scalar(f32 p_scalar) KB_NOEXCEPT {
   kb_vec2_t v;
-  v.vec = kb_math_load_vec2_f32_scalar(p_scalar);
+  v.vec = kb_math_load_vec2_f32_scalar_impl(p_scalar);
   return v;
 }
 
@@ -676,7 +707,7 @@ KB_API KB_NODISCARD KB_FORCE_INLINE kb_vec3_t kb_math_init_vec3_t(f32x4 p_v) KB_
  */
 KB_API KB_NODISCARD KB_FORCE_INLINE kb_vec3_t kb_math_init_vec3_f32_scalar(f32 p_scalar) KB_NOEXCEPT {
   kb_vec3_t v;
-  v.vec = kb_math_load_vec3_f32_scalar(p_scalar);
+  v.vec = kb_math_load_vec3_f32_scalar_impl(p_scalar);
   return v;
 }
 
@@ -703,7 +734,7 @@ KB_API KB_NODISCARD KB_FORCE_INLINE kb_vec4_t kb_math_init_vec4_t(f32x4 p_v) KB_
  */
 KB_API KB_NODISCARD KB_FORCE_INLINE kb_vec4_t kb_math_init_vec4_f32_scalar(f32 p_scalar) KB_NOEXCEPT {
   kb_vec4_t v;
-  v.vec = kb_math_load_vec4_f32_scalar(p_scalar);
+  v.vec = kb_math_load_vec4_f32_scalar_impl(p_scalar);
   return v;
 }
 
@@ -994,7 +1025,7 @@ struct vec2 {
   };
 
   vec2() noexcept = default;
-  explicit vec2(value_t p_v) noexcept { vec = details::kb_math_load_vec2_f32_scalar(p_v); }
+  explicit vec2(value_t p_v) noexcept { vec = details::kb_math_load_vec2_f32_scalar_impl(p_v); }
   vec2(value_t p_x, value_t p_y) noexcept { vec = details::kb_math_load_vec2_f32(p_x, p_y); }
 
   /**
@@ -1038,7 +1069,7 @@ struct vec3 {
   };
 
   vec3() noexcept = default;
-  explicit vec3(value_t p_v) noexcept { vec = details::kb_math_load_vec3_f32_scalar(p_v); }
+  explicit vec3(value_t p_v) noexcept { vec = details::kb_math_load_vec3_f32_scalar_impl(p_v); }
   vec3(value_t p_x, value_t p_y, value_t p_z) noexcept { vec = details::kb_math_load_vec3_f32(p_x, p_y, p_z); }
 
   /**
@@ -1111,7 +1142,7 @@ struct vec4 {
   /**
    * @brief Constructs a 4 component vector from a scalar 32 bit float
    */
-  explicit vec4(f32 p_v) noexcept { vec = details::kb_math_load_vec4_f32_scalar(p_v); }
+  explicit vec4(f32 p_v) noexcept { vec = details::kb_math_load_vec4_f32_scalar_impl(p_v); }
 
   /**
    * @brief Constructs a 4 component vector from a SIMD 4 component vector representation
@@ -1151,9 +1182,9 @@ struct mat3 {
   mat3() noexcept = default;
 
   explicit mat3(f32 p_scalar) noexcept {
-    rows[0] = details::kb_math_load_vec3_f32_scalar(p_scalar);
-    rows[1] = details::kb_math_load_vec3_f32_scalar(p_scalar);
-    rows[2] = details::kb_math_load_vec3_f32_scalar(p_scalar);
+    rows[0] = details::kb_math_load_vec3_f32_scalar_impl(p_scalar);
+    rows[1] = details::kb_math_load_vec3_f32_scalar_impl(p_scalar);
+    rows[2] = details::kb_math_load_vec3_f32_scalar_impl(p_scalar);
   }
 
   /**
@@ -1219,10 +1250,10 @@ struct mat4 {
   mat4() noexcept = default;
 
   explicit mat4(f32 p_scalar) noexcept {
-    rows[0] = details::kb_math_load_vec4_f32_scalar(p_scalar);
-    rows[1] = details::kb_math_load_vec4_f32_scalar(p_scalar);
-    rows[2] = details::kb_math_load_vec4_f32_scalar(p_scalar);
-    rows[3] = details::kb_math_load_vec4_f32_scalar(p_scalar);
+    rows[0] = details::kb_math_load_vec4_f32_scalar_impl(p_scalar);
+    rows[1] = details::kb_math_load_vec4_f32_scalar_impl(p_scalar);
+    rows[2] = details::kb_math_load_vec4_f32_scalar_impl(p_scalar);
+    rows[3] = details::kb_math_load_vec4_f32_scalar_impl(p_scalar);
   }
 
   /**

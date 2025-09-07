@@ -49,13 +49,20 @@ add_library(kb-std
         include/kb/mem/arena_allocator.hpp
         include/kb/mem/intrusive_shared_ref.hpp
 
+        # include/kb/vfs
+        include/kb/vfs/blob.hpp
+        include/kb/vfs/filesystem.hpp
+
         # src/kb
         src/kb/kb_core.cpp
 
         # src/kb/core
         src/kb/core/logger.cpp
         include/kb/kb_std.hpp
-        tests/test_math.cpp
+
+        # src/kb/vfs
+        src/kb/vfs/blob.cpp
+        src/kb/vfs/filesystem.cpp
 )
 
 # Include dirs

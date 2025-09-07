@@ -16,6 +16,9 @@
 #include "kb/mem/arena_allocator.hpp"
 #include "kb/mem/intrusive_shared_ref.hpp"
 
+#include "kb/vfs/blob.hpp"
+#include "kb/vfs/filesystem.hpp"
+
 namespace kb {
 
 // Default reference handling alias
